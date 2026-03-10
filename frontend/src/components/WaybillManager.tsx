@@ -1,0 +1,140 @@
+import { useState } from 'react';
+import { motion } from 'framer-motion';
+import { FileText, CheckCircle2, Clock, Search, Eye, Download, Printer } from 'lucide-react';
+
+const initialWaybills = [
+    { id: 'WL-00892', plate: '01 A 777 AA', driver: 'Azamat Rasulov', status: 'active', medic: 'PASSED', mechanics: 'PASSED', time: 'Bugun, 08:30', duration: '2s 15m' },
+    { id: 'WL-00891', plate: '01 Z 123 BB', driver: 'Sherzod Munirov', status: 'active', medic: 'PASSED', mechanics: 'PASSED', time: 'Bugun, 08:45', duration: '1s 50m' },
+    { id: 'WL-00888', plate: '01 F 555 FF', driver: 'Ilyos Tojirov', status: 'completed', medic: 'PASSED', mechanics: 'PASSED', time: 'Kecha, 18:20', duration: '6s 10m' },
+    { id: 'WL-00885', plate: '10 O 001 OO', driver: 'Nil', status: 'rejected', medic: 'FAILED', mechanics: 'PASSED', time: 'Kecha, 09:15', duration: '-' },
+    { id: 'WL-00880', plate: '01 K 888 KK', status: 'pending', medic: 'PENDING', mechanics: 'PENDING', time: 'Kutilmoqda', duration: '-' },
+];
+
+export const WaybillManager = () => {
+    const [waybills] = useState(initialWaybills);
+    const [searchTerm, setSearchTerm] = useState('');
+    const [filterStatus, setFilterStatus] = useState('All');
+
+    const filteredWaybills = waybills.filter(w =>
+        (w.id.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            w.plate.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            (w.driver && w.driver.toLowerCase().includes(searchTerm.toLowerCase()))) &&
+        (filterStatus === 'All' || w.status === filterStatus)
+    );
+
+    return (
+        <div className="space-y-6">
+            <div className="flex flex-wrap justify-between items-center bg-slate-800/40 p-4 rounded-2xl border border-slate-700/50 gap-4">
+                <div className="flex flex-wrap gap-4 flex-1">
+                    <div className="relative flex-1 max-w-sm">
+                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
+                        <input
+                            type="text"
+                            placeholder="Varaqa ID, Mashina yoki Haydovchi..."
+                            value={searchTerm}
+                            onChange={(e) => setSearchTerm(e.target.value)}
+                            className="pl-10 pr-4 py-2 bg-slate-900/50 border border-slate-700 rounded-xl focus:outline-none focus:border-blue-500 transition-all w-full"
+                        />
+                    </div>
+                    <div className="flex bg-slate-900/50 p-1 rounded-xl border border-slate-700">
+                        {['All', 'active', 'completed', 'rejected'].map((s) => (
+                            <button
+                                key={s}
+                                onClick={() => setFilterStatus(s)}
+                                className={`px-4 py-1.5 rounded-lg text-xs font-bold transition-all uppercase ${filterStatus === s ? 'bg-blue-600 text-white shadow-lg' : 'text-slate-400 hover:bg-slate-800'
+                                    }`}
+                            >
+                                {s === 'All' ? 'Barchasi' : s === 'active' ? 'Faol' : s === 'completed' ? 'Yopilgan' : 'Rad etilgan'}
+                            </button>
+                        ))}
+                    </div>
+                </div>
+                <div className="flex gap-2">
+                    <button className="p-2 bg-slate-800 border border-slate-700 rounded-xl text-slate-400 hover:text-white transition-all">
+                        <Printer size={18} />
+                    </button>
+                    <button className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-xl text-sm font-bold transition-all">
+                        <Download size={18} /> Eksport
+                    </button>
+                </div>
+            </div>
+
+            <div className="glass-panel rounded-2xl overflow-hidden border border-slate-700/50">
+                <div className="overflow-x-auto">
+                    <table className="w-full text-left">
+                        <thead>
+                            <tr className="bg-slate-900/80 text-slate-400 text-[10px] font-bold uppercase tracking-widest border-b border-slate-700/50">
+                                <th className="px-6 py-5">Varaqa ID</th>
+                                <th className="px-6 py-5">Transport</th>
+                                <th className="px-6 py-5">Haydovchi</th>
+                                <th className="px-6 py-5">Nazorat (M/M)</th>
+                                <th className="px-6 py-5">Safar vaqti</th>
+                                <th className="px-6 py-5">Holat</th>
+                                <th className="px-6 py-5 text-right">Amallar</th>
+                            </tr>
+                        </thead>
+                        <tbody className="divide-y divide-slate-700/30">
+                            {filteredWaybills.length === 0 ? (
+                                <tr>
+                                    <td colSpan={7} className="px-6 py-20 text-center">
+                                        <FileText size={48} className="mx-auto text-slate-700 mb-4 opacity-20" />
+                                        <p className="text-slate-500">Hech qanday yo'l varaqasi topilmadi</p>
+                                    </td>
+                                </tr>
+                            ) : (
+                                filteredWaybills.map((w) => (
+                                    <motion.tr
+                                        key={w.id}
+                                        initial={{ opacity: 0 }}
+                                        animate={{ opacity: 1 }}
+                                        className="hover:bg-blue-500/5 transition-all group"
+                                    >
+                                        <td className="px-6 py-4">
+                                            <span className="font-mono text-blue-400 font-bold">{w.id}</span>
+                                        </td>
+                                        <td className="px-6 py-4 font-bold text-slate-200 uppercase">{w.plate}</td>
+                                        <td className="px-6 py-4">
+                                            <span className={w.driver === 'Nil' ? 'text-slate-600 italic' : 'text-slate-300'}>{w.driver}</span>
+                                        </td>
+                                        <td className="px-6 py-4">
+                                            <div className="flex gap-2">
+                                                <div className={`p-1.5 rounded-lg border ${w.medic === 'PASSED' ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-400' :
+                                                    w.medic === 'FAILED' ? 'bg-red-500/10 border-red-500/20 text-red-400' : 'bg-slate-800 border-slate-700 text-slate-500'
+                                                    }`} title="Med Check">
+                                                    <CheckCircle2 size={14} />
+                                                </div>
+                                                <div className={`p-1.5 rounded-lg border ${w.mechanics === 'PASSED' ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-400' :
+                                                    w.mechanics === 'FAILED' ? 'bg-red-500/10 border-red-500/20 text-red-400' : 'bg-slate-800 border-slate-700 text-slate-500'
+                                                    }`} title="Tech Check">
+                                                    <Clock size={14} />
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td className="px-6 py-4 text-xs">
+                                            <p className="text-slate-300 mb-0.5">{w.time}</p>
+                                            <p className="text-slate-500 font-mono">{w.duration}</p>
+                                        </td>
+                                        <td className="px-6 py-4">
+                                            <span className={`px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-tighter border ${w.status === 'active' ? 'bg-blue-500/10 text-blue-400 border-blue-500/30' :
+                                                w.status === 'completed' ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/30' :
+                                                    w.status === 'rejected' ? 'bg-red-500/10 text-red-400 border-red-500/30' :
+                                                        'bg-slate-800 text-slate-500 border-slate-700'
+                                                }`}>
+                                                {w.status === 'active' ? 'Yo\'lda' : w.status === 'completed' ? 'Yakunlangan' : w.status === 'rejected' ? 'Rad etilgan' : 'Kutilmoqda'}
+                                            </span>
+                                        </td>
+                                        <td className="px-6 py-4 text-right">
+                                            <button className="p-2 text-slate-500 hover:text-blue-400 hover:bg-blue-500/10 rounded-lg transition-all">
+                                                <Eye size={18} />
+                                            </button>
+                                        </td>
+                                    </motion.tr>
+                                ))
+                            )}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    );
+};

@@ -1,0 +1,13 @@
+@echo off
+echo Starting Enterprise Fleet Management System (EFMS) [Docker Mode]...
+
+echo Start Docker Containers (PostgreSQL/TimescaleDB, Redis)...
+docker-compose up -d
+
+echo Initializing Frontend Server (Vite)...
+start cmd /k "cd frontend && npm run dev"
+
+echo Initializing Backend NextJS Server...
+start cmd /k "cd backend && npm run start:dev"
+
+echo Startup Complete! Check your Dashboard at http://localhost:5173

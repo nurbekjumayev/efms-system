@@ -1,0 +1,32 @@
+version: '3.8'
+
+services:
+  # PostgreSQL with TimescaleDB
+  db:
+    image: timescale/timescaledb:latest-pg15
+    container_name: efms_db
+    environment:
+      POSTGRES_USER: root
+      POSTGRES_PASSWORD: rootpassword
+      POSTGRES_DB: efms
+    ports:
+      - "5432:5432"
+    volumes:
+      - efms_pgdata:/var/lib/postgresql/data
+    restart: unless-stopped
+    command: postgres -c "max_connections=200"
+
+  # Redis for caching & websockets
+  redis:
+    image: redis:7-alpine
+    container_name: efms_redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - efms_redisdata:/data
+    restart: unless-stopped
+    command: redis-server --appendonly yes
+
+volumes:
+  efms_pgdata:
+  efms_redisdata:
