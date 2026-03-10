@@ -1,0 +1,13 @@
+{
+    "name": "efms-root",
+    "version": "1.0.0",
+    "private": true,
+    "scripts": {
+        "postinstall": "npm install --prefix frontend && npm install --prefix backend",
+        "build": "npm run build --prefix frontend",
+        "start": "npm run start:dev --prefix backend & npm run dev --prefix frontend"
+    },
+    "engines": {
+        "node": ">=20"
+    }
+}
