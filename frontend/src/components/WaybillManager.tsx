@@ -1,13 +1,13 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { FileText, CheckCircle2, Clock, Search, Eye, Download, Printer } from 'lucide-react';
+import { FileText, Search, Eye, Download, Printer, Heart, Wrench, ShieldCheck, Stethoscope } from 'lucide-react';
 
 const initialWaybills = [
-    { id: 'WL-00892', plate: '01 A 777 AA', driver: 'Azamat Rasulov', status: 'active', medic: 'PASSED', mechanics: 'PASSED', time: 'Bugun, 08:30', duration: '2s 15m' },
-    { id: 'WL-00891', plate: '01 Z 123 BB', driver: 'Sherzod Munirov', status: 'active', medic: 'PASSED', mechanics: 'PASSED', time: 'Bugun, 08:45', duration: '1s 50m' },
-    { id: 'WL-00888', plate: '01 F 555 FF', driver: 'Ilyos Tojirov', status: 'completed', medic: 'PASSED', mechanics: 'PASSED', time: 'Kecha, 18:20', duration: '6s 10m' },
-    { id: 'WL-00885', plate: '10 O 001 OO', driver: 'Nil', status: 'rejected', medic: 'FAILED', mechanics: 'PASSED', time: 'Kecha, 09:15', duration: '-' },
-    { id: 'WL-00880', plate: '01 K 888 KK', status: 'pending', medic: 'PENDING', mechanics: 'PENDING', time: 'Kutilmoqda', duration: '-' },
+    { id: 'WL-00892', plate: '01 A 777 AA', driver: 'Azamat Rasulov', status: 'active', cargo: 'Qurilish mollari', weight: '18.5t', medic: 'PASSED', mechanics: 'PASSED', faceId: 'PASSED', esmo: 'PASSED', time: 'Bugun, 08:30', duration: '2s 15m' },
+    { id: 'WL-00891', plate: '01 Z 123 BB', driver: 'Sherzod Munirov', status: 'active', cargo: 'G\'isht', weight: '22.0t', medic: 'PASSED', mechanics: 'PASSED', faceId: 'PASSED', esmo: 'PASSED', time: 'Bugun, 08:45', duration: '1s 50m' },
+    { id: 'WL-00888', plate: '40 L 444 LL', driver: 'Ilyos Tojirov', status: 'completed', cargo: 'Oziq-ovqat', weight: '15.0t', medic: 'PASSED', mechanics: 'PASSED', faceId: 'PASSED', esmo: 'PASSED', time: 'Kecha, 18:20', duration: '6s 10m' },
+    { id: 'WL-00885', plate: '10 O 001 OO', driver: 'Nil', status: 'rejected', cargo: '-', weight: '-', medic: 'FAILED', mechanics: 'PASSED', faceId: 'PENDING', esmo: 'FAILED', time: 'Kecha, 09:15', duration: '-' },
+    { id: 'WL-00880', plate: '01 K 888 KK', status: 'pending', cargo: 'Maishiy texnika', weight: '1.2t', medic: 'PENDING', mechanics: 'PENDING', faceId: 'PENDING', esmo: 'PENDING', time: 'Kutilmoqda', duration: '-' },
 ];
 
 export const WaybillManager = () => {
@@ -67,9 +67,9 @@ export const WaybillManager = () => {
                                 <th className="px-6 py-5">Varaqa ID</th>
                                 <th className="px-6 py-5">Transport</th>
                                 <th className="px-6 py-5">Haydovchi</th>
-                                <th className="px-6 py-5">Nazorat (M/M)</th>
+                                <th className="px-6 py-5">Yuk va Og'irlik</th>
+                                <th className="px-6 py-5">Nazorat (M/M/F/E)</th>
                                 <th className="px-6 py-5">Safar vaqti</th>
-                                <th className="px-6 py-5">Holat</th>
                                 <th className="px-6 py-5 text-right">Amallar</th>
                             </tr>
                         </thead>
@@ -97,16 +97,34 @@ export const WaybillManager = () => {
                                             <span className={w.driver === 'Nil' ? 'text-slate-600 italic' : 'text-slate-300'}>{w.driver}</span>
                                         </td>
                                         <td className="px-6 py-4">
-                                            <div className="flex gap-2">
+                                            <p className="text-xs font-bold text-slate-200">{(w as any).cargo}</p>
+                                            <p className="text-[10px] text-blue-400 font-mono">{(w as any).weight}</p>
+                                        </td>
+                                        <td className="px-6 py-4">
+                                            <div className="flex gap-1.5">
+                                                {/* Medic (M) */}
                                                 <div className={`p-1.5 rounded-lg border ${w.medic === 'PASSED' ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-400' :
                                                     w.medic === 'FAILED' ? 'bg-red-500/10 border-red-500/20 text-red-400' : 'bg-slate-800 border-slate-700 text-slate-500'
-                                                    }`} title="Med Check">
-                                                    <CheckCircle2 size={14} />
+                                                    }`} title="Tibbiy ko'rik">
+                                                    <Heart size={14} />
                                                 </div>
+                                                {/* Mechanic (M) */}
                                                 <div className={`p-1.5 rounded-lg border ${w.mechanics === 'PASSED' ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-400' :
                                                     w.mechanics === 'FAILED' ? 'bg-red-500/10 border-red-500/20 text-red-400' : 'bg-slate-800 border-slate-700 text-slate-500'
-                                                    }`} title="Tech Check">
-                                                    <Clock size={14} />
+                                                    }`} title="Texnik ko'rik">
+                                                    <Wrench size={14} />
+                                                </div>
+                                                {/* Face ID (F) */}
+                                                <div className={`p-1.5 rounded-lg border ${(w as any).faceId === 'PASSED' ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-400' :
+                                                    (w as any).faceId === 'FAILED' ? 'bg-red-500/10 border-red-500/20 text-red-400' : 'bg-slate-800 border-slate-700 text-slate-500'
+                                                    }`} title="Face ID">
+                                                    <ShieldCheck size={14} />
+                                                </div>
+                                                {/* ESMO (E) */}
+                                                <div className={`p-1.5 rounded-lg border ${(w as any).esmo === 'PASSED' ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-400' :
+                                                    (w as any).esmo === 'FAILED' ? 'bg-red-500/10 border-red-500/20 text-red-400' : 'bg-slate-800 border-slate-700 text-slate-500'
+                                                    }`} title="ESMO">
+                                                    <Stethoscope size={14} />
                                                 </div>
                                             </div>
                                         </td>

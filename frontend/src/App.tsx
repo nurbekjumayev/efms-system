@@ -13,7 +13,10 @@ import {
   Shield,
   Heart,
   ClipboardList,
-  Smartphone
+  Smartphone,
+  Weight,
+  Box,
+  Settings
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
@@ -37,6 +40,8 @@ import { AccessControlManager } from './components/AccessControlManager';
 import { MedicalManager } from './components/MedicalManager';
 import { MechanicManager } from './components/MechanicManager';
 import { MobileAppSimulation } from './components/MobileAppSimulation';
+import { CargoManager } from './components/CargoManager';
+import { UserManager } from './components/UserManager';
 
 const performanceData = [
   { time: '08:00', fuel: 4000, efficiency: 2400 },
@@ -52,6 +57,14 @@ function App() {
   const { t, lang, setLang } = useI18n();
   const [activeTab, setActiveTab] = useState('dashboard');
   const [liveStats, setLiveStats] = useState({ trips: 87, fuel: 94 });
+  const [userRole, setUserRole] = useState<'admin' | 'dispatcher' | 'manager'>('admin');
+
+  // Role-based permissions mapping
+  const rolePermissions: Record<string, string[]> = {
+    admin: ['dashboard', 'fleet', 'tracking', 'drivers', 'access', 'medical', 'mechanic', 'waybills', 'fuel', 'cargo', 'settings', 'reports', 'mobile'],
+    dispatcher: ['dashboard', 'fleet', 'tracking', 'drivers', 'access', 'waybills', 'cargo', 'mobile'],
+    manager: ['dashboard', 'fleet', 'fuel', 'cargo', 'reports'],
+  };
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -77,15 +90,17 @@ function App() {
     { id: 'mechanic', icon: <Wrench />, label: t('vehicleInspections') },
     { id: 'waybills', icon: <FileText />, label: t('waybills') },
     { id: 'fuel', icon: <Droplet />, label: t('fuel') },
+    { id: 'cargo', icon: <Box />, label: t('cargoStats') },
+    { id: 'settings', icon: <Settings />, label: t('settings') },
     { id: 'reports', icon: <ClipboardList />, label: t('reports') },
     { id: 'mobile', icon: <Smartphone />, label: 'Haydovchi App' },
-  ];
+  ].filter(item => rolePermissions[userRole].includes(item.id));
 
   const statCards = [
     { id: 'fleet', title: t('totalVehicles'), value: '142', color: 'from-blue-500 to-cyan-400', icon: <Car /> },
     { id: 'waybills', title: t('activeTrips'), value: liveStats.trips.toString(), color: 'from-emerald-500 to-teal-400', icon: <Map /> },
-    { id: 'fleet', title: t('inRepair'), value: '12', color: 'from-orange-500 to-amber-400', icon: <Wrench /> },
-    { id: 'fuel', title: t('fuelEfficiency'), value: `${liveStats.fuel.toFixed(1)}%`, color: 'from-purple-500 to-pink-400', icon: <Droplet /> },
+    { id: 'reports', title: t('totalWeight'), value: '1,240 t', color: 'from-orange-500 to-amber-400', icon: <Weight /> },
+    { id: 'fuel', title: t('utilization'), value: `${liveStats.fuel.toFixed(1)}%`, color: 'from-purple-500 to-pink-400', icon: <Activity /> },
   ];
 
   const renderContent = () => {
@@ -237,6 +252,18 @@ function App() {
             <ReportsManager />
           </motion.div>
         );
+      case 'cargo':
+        return (
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
+            <CargoManager />
+          </motion.div>
+        );
+      case 'settings':
+        return (
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
+            <UserManager />
+          </motion.div>
+        );
       case 'mobile':
         return (
           <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0 }}>
@@ -325,6 +352,23 @@ function App() {
           <h2 className="text-2xl font-semibold">{t(activeTab as any)}</h2>
 
           <div className="flex items-center gap-6">
+            {/* Role Switcher */}
+            <div className="flex bg-slate-800/50 rounded-xl p-1 border border-slate-700/50">
+              {(['admin', 'dispatcher', 'manager'] as const).map(role => (
+                <button
+                  key={role}
+                  onClick={() => {
+                    setUserRole(role);
+                    if (!rolePermissions[role].includes(activeTab)) setActiveTab('dashboard');
+                  }}
+                  className={`px-4 py-1.5 rounded-lg text-[10px] font-bold uppercase transition-all ${userRole === role ? 'bg-blue-600 text-white shadow-lg shadow-blue-600/20' : 'text-slate-500 hover:text-slate-300'
+                    }`}
+                >
+                  {t(role as any)}
+                </button>
+              ))}
+            </div>
+
             <button
               onClick={toggleLang}
               className="flex items-center gap-2 px-4 py-2 rounded-lg bg-slate-800/50 border border-slate-700 hover:border-blue-500/50 transition-colors cursor-pointer"
@@ -341,8 +385,8 @@ function App() {
                 <div className="w-full h-full rounded-full bg-slate-900 flex items-center justify-center font-bold">A</div>
               </div>
               <div>
-                <p className="text-sm font-semibold">Admin User</p>
-                <p className="text-xs text-slate-400">Dispatcher</p>
+                <p className="text-sm font-semibold">{userRole === 'admin' ? 'Nurbek Jumayev' : userRole === 'dispatcher' ? 'Sherzod Alimov' : 'Tahlilchi'}</p>
+                <p className="text-xs text-slate-400 capitalize">{t(userRole as any)}</p>
               </div>
             </div>
           </div>

@@ -1,14 +1,14 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Car, Fuel, Activity, Search, Users, Trash2, X, Plus, Pencil } from 'lucide-react';
+import { Car, Fuel, Activity, Search, Users, Trash2, X, Plus, Pencil, Weight, Box } from 'lucide-react';
 import { useI18n } from '../i18n';
 
 const initialVehicles = [
-    { id: 1, plate: '01 A 777 AA', model: 'Chevrolet Traverse', category: 'SUV', status: 'active', fuel: 85, fuelType: 'benzin', driver: 'Azamat R.', odometer: '42,500 km' },
-    { id: 2, plate: '01 Z 123 BB', model: 'Chevrolet Damas', category: 'Cargo', status: 'active', fuel: 42, fuelType: 'metan', driver: 'Sherzod M.', odometer: '156,200 km' },
-    { id: 3, plate: '10 O 001 OO', model: 'Chevrolet Tahoe', category: 'VIP', status: 'repair', fuel: 10, fuelType: 'benzin', driver: 'Nil', odometer: '12,000 km' },
-    { id: 4, plate: '01 F 555 FF', model: 'Isuzu NPR', category: 'Truck', status: 'active', fuel: 68, fuelType: 'diesel', driver: 'Ilyos T.', odometer: '98,000 km' },
-    { id: 5, plate: '01 K 888 KK', model: 'Chevrolet Onix', category: 'Sedan', status: 'standby', fuel: 100, fuelType: 'propan', driver: 'Nil', odometer: '5,400 km' },
+    { id: 1, plate: '01 A 777 AA', model: 'MAN TGS 18.400', category: 'Heavy Truck', capacity: '20t', volume: '80m³', status: 'active', fuel: 85, fuelType: 'diesel', driver: 'Azamat R.', odometer: '42,500 km' },
+    { id: 2, plate: '01 Z 123 BB', model: 'Kamaz 6520', category: 'Heavy Truck', capacity: '25t', volume: '20m³', status: 'active', fuel: 42, fuelType: 'diesel', driver: 'Sherzod M.', odometer: '156,200 km' },
+    { id: 3, plate: '10 O 001 OO', model: 'Volvo FH16', category: 'Heavy Truck', capacity: '30t', volume: '90m³', status: 'repair', fuel: 10, fuelType: 'diesel', driver: 'Nil', odometer: '12,000 km' },
+    { id: 4, plate: '01 F 555 FF', model: 'Isuzu NPR82', category: 'Light Cargo', capacity: '5t', volume: '25m³', status: 'active', fuel: 68, fuelType: 'metan', driver: 'Ilyos T.', odometer: '98,000 km' },
+    { id: 5, plate: '01 K 888 KK', model: 'Gazel Next', category: 'Light Cargo', capacity: '1.5t', volume: '12m³', status: 'standby', fuel: 100, fuelType: 'propan', driver: 'Nil', odometer: '5,400 km' },
 ];
 
 export const FleetManager = () => {
@@ -17,7 +17,7 @@ export const FleetManager = () => {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [isEditMode, setIsEditMode] = useState(false);
     const [editingId, setEditingId] = useState<number | null>(null);
-    const [newVehicle, setNewVehicle] = useState({ plate: '', model: '', category: 'SUV', fuelType: 'benzin' });
+    const [newVehicle, setNewVehicle] = useState({ plate: '', model: '', category: 'Heavy Truck', fuelType: 'diesel', capacity: '', volume: '' });
     const [searchTerm, setSearchTerm] = useState('');
     const [filterCategory, setFilterCategory] = useState('All');
 
@@ -28,7 +28,7 @@ export const FleetManager = () => {
     };
 
     const handleEdit = (v: any) => {
-        setNewVehicle({ plate: v.plate, model: v.model, category: v.category, fuelType: v.fuelType });
+        setNewVehicle({ plate: v.plate, model: v.model, category: v.category, fuelType: v.fuelType, capacity: v.capacity, volume: v.volume });
         setEditingId(v.id);
         setIsEditMode(true);
         setIsModalOpen(true);
@@ -58,7 +58,7 @@ export const FleetManager = () => {
         setIsModalOpen(false);
         setIsEditMode(false);
         setEditingId(null);
-        setNewVehicle({ plate: '', model: '', category: 'SUV', fuelType: 'benzin' });
+        setNewVehicle({ plate: '', model: '', category: 'Heavy Truck', fuelType: 'diesel', capacity: '', volume: '' });
     };
 
     const filteredVehicles = vehicles.filter(v =>
@@ -86,11 +86,10 @@ export const FleetManager = () => {
                         className="px-4 py-2 bg-slate-900/50 border border-slate-700 rounded-xl focus:outline-none focus:border-blue-500 transition-all text-sm text-slate-300"
                     >
                         <option value="All">Barcha kategoriyalar</option>
-                        <option value="SUV">SUV</option>
-                        <option value="Sedan">Sedan</option>
-                        <option value="Cargo">Cargo</option>
-                        <option value="Truck">Truck</option>
-                        <option value="VIP">VIP</option>
+                        <option value="Heavy Truck">Heavy Truck</option>
+                        <option value="Light Cargo">Light Cargo</option>
+                        <option value="Refrigerator">Refrigerator</option>
+                        <option value="Container">Container</option>
                     </select>
                 </div>
                 <button
@@ -138,17 +137,34 @@ export const FleetManager = () => {
                                         <Car size={24} />
                                     </div>
                                     <div className={`px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider ${v.status === 'active' ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' :
-                                            v.status === 'repair' ? 'bg-red-500/10 text-red-400 border border-red-500/20' :
-                                                'bg-slate-500/10 text-slate-400 border border-slate-500/20'
+                                        v.status === 'repair' ? 'bg-red-500/10 text-red-400 border border-red-500/20' :
+                                            'bg-slate-500/10 text-slate-400 border border-slate-500/20'
                                         }`}>
                                         {v.status === 'active' ? 'Yo\'lda' : v.status === 'repair' ? 'Ta\'mirda' : 'Kutilmoqda'}
                                     </div>
                                 </div>
 
                                 <h4 className="text-xl font-bold mb-1 group-hover:text-blue-400 transition-colors uppercase">{v.plate}</h4>
-                                <p className="text-slate-400 text-sm mb-4">
+                                <p className="text-slate-400 text-sm mb-3">
                                     {v.model} • {v.category} • <span className="text-blue-400 font-semibold">{t(v.fuelType as any)}</span>
                                 </p>
+
+                                <div className="grid grid-cols-2 gap-3 mb-4">
+                                    <div className="p-2 bg-slate-900/50 rounded-xl border border-slate-700/30">
+                                        <div className="flex items-center gap-2 text-slate-400 mb-1">
+                                            <Weight size={12} className="text-blue-400" />
+                                            <span className="text-[9px] font-bold uppercase tracking-tighter">{t('tonnage')}</span>
+                                        </div>
+                                        <p className="font-bold text-slate-200 text-xs">{(v as any).capacity}</p>
+                                    </div>
+                                    <div className="p-2 bg-slate-900/50 rounded-xl border border-slate-700/30">
+                                        <div className="flex items-center gap-2 text-slate-400 mb-1">
+                                            <Box size={12} className="text-blue-400" />
+                                            <span className="text-[9px] font-bold uppercase tracking-tighter">{t('volume')}</span>
+                                        </div>
+                                        <p className="font-bold text-slate-200 text-xs">{(v as any).volume}</p>
+                                    </div>
+                                </div>
 
                                 <div className="space-y-3 border-t border-slate-700/50 pt-4">
                                     <div className="flex justify-between items-center text-sm">
@@ -208,12 +224,29 @@ export const FleetManager = () => {
                                 </div>
                                 <div className="grid grid-cols-2 gap-4">
                                     <div>
+                                        <label className="block text-xs font-bold text-slate-500 uppercase mb-1.5">O'lchami</label>
+                                        <input
+                                            type="text" value={(newVehicle as any).volume} onChange={e => setNewVehicle({ ...newVehicle, volume: e.target.value })}
+                                            placeholder="80m³" className="w-full bg-slate-900 border border-slate-700 p-3 rounded-xl focus:border-blue-500 outline-none transition-all"
+                                        />
+                                    </div>
+                                    <div>
+                                        <label className="block text-xs font-bold text-slate-500 uppercase mb-1.5">Sig'imi</label>
+                                        <input
+                                            type="text" value={(newVehicle as any).capacity} onChange={e => setNewVehicle({ ...newVehicle, capacity: e.target.value })}
+                                            placeholder="20t" className="w-full bg-slate-900 border border-slate-700 p-3 rounded-xl focus:border-blue-500 outline-none transition-all"
+                                        />
+                                    </div>
+                                </div>
+
+                                <div className="grid grid-cols-2 gap-4">
+                                    <div>
                                         <label className="block text-xs font-bold text-slate-500 uppercase mb-1.5">Kategoriya</label>
                                         <select
                                             value={newVehicle.category} onChange={e => setNewVehicle({ ...newVehicle, category: e.target.value })}
                                             className="w-full bg-slate-900 border border-slate-700 p-3 rounded-xl focus:border-blue-500 outline-none transition-all"
                                         >
-                                            <option>SUV</option><option>Sedan</option><option>Cargo</option><option>Truck</option><option>VIP</option>
+                                            <option>Heavy Truck</option><option>Light Cargo</option><option>Refrigerator</option><option>Container</option>
                                         </select>
                                     </div>
                                     <div>
