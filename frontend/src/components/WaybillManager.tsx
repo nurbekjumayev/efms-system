@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { FileText, Search, Eye, Download, Printer, Heart, Wrench, ShieldCheck, Stethoscope } from 'lucide-react';
+import { FileText, Search, Eye, Download, Printer, ShieldCheck, Stethoscope, Plus, Fingerprint } from 'lucide-react';
 
 const initialWaybills = [
     { id: 'WL-00892', plate: '01 A 777 AA', driver: 'Azamat Rasulov', status: 'active', cargo: 'Qurilish mollari', weight: '18.5t', medic: 'PASSED', mechanics: 'PASSED', faceId: 'PASSED', esmo: 'PASSED', time: 'Bugun, 08:30', duration: '2s 15m' },
@@ -11,7 +11,8 @@ const initialWaybills = [
 ];
 
 export const WaybillManager = () => {
-    const [waybills] = useState(initialWaybills);
+    const [waybills, setWaybills] = useState(initialWaybills);
+    const [isIssuing, setIsIssuing] = useState<string | null>(null);
     const [searchTerm, setSearchTerm] = useState('');
     const [filterStatus, setFilterStatus] = useState('All');
 
@@ -50,6 +51,12 @@ export const WaybillManager = () => {
                     </div>
                 </div>
                 <div className="flex gap-2">
+                    <button
+                        onClick={() => alert('Yangi yo\'l varaqasi ochish oynasi (Hozircha simulyatsiya)')}
+                        className="flex items-center gap-2 px-5 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl text-sm font-bold transition-all shadow-lg shadow-emerald-600/20"
+                    >
+                        <Plus size={18} /> Yangi varaqa
+                    </button>
                     <button className="p-2 bg-slate-800 border border-slate-700 rounded-xl text-slate-400 hover:text-white transition-all">
                         <Printer size={18} />
                     </button>
@@ -68,7 +75,7 @@ export const WaybillManager = () => {
                                 <th className="px-6 py-5">Transport</th>
                                 <th className="px-6 py-5">Haydovchi</th>
                                 <th className="px-6 py-5">Yuk va Og'irlik</th>
-                                <th className="px-6 py-5">Nazorat (M/M/F/E)</th>
+                                <th className="px-6 py-5 text-center">Nazorat (F/E)</th>
                                 <th className="px-6 py-5">Safar vaqti</th>
                                 <th className="px-6 py-5 text-right">Amallar</th>
                             </tr>
@@ -101,19 +108,7 @@ export const WaybillManager = () => {
                                             <p className="text-[10px] text-blue-400 font-mono">{(w as any).weight}</p>
                                         </td>
                                         <td className="px-6 py-4">
-                                            <div className="flex gap-1.5">
-                                                {/* Medic (M) */}
-                                                <div className={`p-1.5 rounded-lg border ${w.medic === 'PASSED' ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-400' :
-                                                    w.medic === 'FAILED' ? 'bg-red-500/10 border-red-500/20 text-red-400' : 'bg-slate-800 border-slate-700 text-slate-500'
-                                                    }`} title="Tibbiy ko'rik">
-                                                    <Heart size={14} />
-                                                </div>
-                                                {/* Mechanic (M) */}
-                                                <div className={`p-1.5 rounded-lg border ${w.mechanics === 'PASSED' ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-400' :
-                                                    w.mechanics === 'FAILED' ? 'bg-red-500/10 border-red-500/20 text-red-400' : 'bg-slate-800 border-slate-700 text-slate-500'
-                                                    }`} title="Texnik ko'rik">
-                                                    <Wrench size={14} />
-                                                </div>
+                                            <div className="flex gap-1.5 justify-center">
                                                 {/* Face ID (F) */}
                                                 <div className={`p-1.5 rounded-lg border ${(w as any).faceId === 'PASSED' ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-400' :
                                                     (w as any).faceId === 'FAILED' ? 'bg-red-500/10 border-red-500/20 text-red-400' : 'bg-slate-800 border-slate-700 text-slate-500'
@@ -142,9 +137,40 @@ export const WaybillManager = () => {
                                             </span>
                                         </td>
                                         <td className="px-6 py-4 text-right">
-                                            <button className="p-2 text-slate-500 hover:text-blue-400 hover:bg-blue-500/10 rounded-lg transition-all">
-                                                <Eye size={18} />
-                                            </button>
+                                            <div className="flex items-center justify-end gap-2">
+                                                {w.status === 'pending' && (
+                                                    <button
+                                                        onClick={() => {
+                                                            if ((w as any).faceId === 'PASSED' && (w as any).esmo === 'PASSED') {
+                                                                setIsIssuing(w.id);
+                                                                setTimeout(() => {
+                                                                    setWaybills(prev => prev.map(item => item.id === w.id ? { ...item, status: 'active' as any } : item));
+                                                                    setIsIssuing(null);
+                                                                    alert(`${w.id} raqamli yo'l varaqasi muvaffaqiyatli berildi! 🖨️✅`);
+                                                                }, 2000);
+                                                            } else {
+                                                                alert('Xatolik: Haydovchi Face ID va ESMO nazoratidan o\'tmagan! ❌');
+                                                            }
+                                                        }
+                                                        }
+                                                        disabled={isIssuing === w.id}
+                                                        className={`flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-bold transition-all ${((w as any).faceId === 'PASSED' && (w as any).esmo === 'PASSED')
+                                                            ? 'bg-emerald-600 hover:bg-emerald-500 text-white shadow-lg shadow-emerald-600/20'
+                                                            : 'bg-slate-800 text-slate-500 cursor-not-allowed border border-slate-700'
+                                                            }`}
+                                                    >
+                                                        {isIssuing === w.id ? (
+                                                            <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                                                        ) : (
+                                                            <Fingerprint size={14} />
+                                                        )}
+                                                        Berish
+                                                    </button>
+                                                )}
+                                                <button className="p-2 text-slate-500 hover:text-blue-400 hover:bg-blue-500/10 rounded-lg transition-all">
+                                                    <Eye size={18} />
+                                                </button>
+                                            </div>
                                         </td>
                                     </motion.tr>
                                 ))
